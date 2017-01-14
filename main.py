@@ -68,10 +68,11 @@ class Net(object):
 
         # Connect nodes and create graph
         with tf.name_scope('model'):
-            self.model, self.reg = self.network.model(self.train_phase)
+            #self.model, self.reg = self.network.model(self.train_phase)
+            self.model  = self.network.model(self.train_phase)
 
         with tf.name_scope('loss'):
-            self.loss = self.network.loss(predict=self.model, reg=self.reg)
+            self.loss = self.network.loss(predict=self.model) # reg=self.reg
 
         with tf.name_scope('train'):
             # Train and update weights using the solver
