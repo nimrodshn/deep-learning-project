@@ -38,11 +38,14 @@ class CellSegmentation(object):
 		#d_out = 1
 		#conv_1, reg1 = ops.conv2d(x_image, output_dim=d_out, k_h=3, k_w=3, d_h=1, d_w=1, name="conv_1")
 
-		conv_1_1, reg1_1 = ops.conv_layer(x_image, [3, 3, 1, 64], 64, 'conv_1_1')
-		conv_1_2, reg1_2 = ops.conv_layer(conv_1_1, [3, 3, 64, 64], 64, 'conv_1_2')
-		predict, reg_predict = ops.conv_layer(conv_1_2, [3, 3, 64, 1], 1, 'predict') #we have a single segmentation map and not 21!!!
+		# conv_1_1, reg1_1 = ops.conv2d(x_image, 64, k_h=3, k_w=3, d_h=1, d_w=1, stddev=0.02, name="conv_1_1")
+		# conv_1_2, reg1_2 = ops.conv2d(conv_1_1, 64, k_h=3, k_w=3, d_h=1, d_w=1, stddev=0.02, name="conv_1_2")
+		predict, reg_predict = ops.conv2d(x_image, 1, k_h=3, k_w=3, d_h=1, d_w=1, stddev=0.02, name="predict") #we have a single segmentation map and not 21!!!
+		predict = tf.squeeze(predict);
+		reg = reg_predict
 
-		reg1 = reg1_1 + reg1_2 + reg_predict
+		loss = self.loss(predict, reg)
+		print(loss)
 		# pool_1, pool_1_argmax = ops.pool_layer(conv_1_2)
 
 		# conv_2_1, reg2_1 = ops.conv_layer(pool_1, [3, 3, 64, 128], 128, 'conv_2_1')
@@ -105,7 +108,7 @@ class CellSegmentation(object):
 		# predict, reg_predict = ops.deconv_layer(deconv_1_1, [1, 1, 1, 32], 1, 'predict') #we have a single segmentation map and not 21!!!
 
 		# reg = reg_predict + regd1 + regd2 + regd3 + regd4 + regd5 + reg_fc + reg5 + reg4 + reg3 + reg2 + reg1
-		return predict, reg1
+		return predict, reg
 
 	def loss(self, predict, reg=None):
 		"""
