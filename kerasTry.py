@@ -13,6 +13,8 @@ from keras.layers.convolutional import Convolution2D, Deconvolution2D
 from keras.layers.convolutional import MaxPooling2D, UpSampling2D
 from keras.utils import np_utils
 from keras import backend as K
+from Val_Callback import Val_Callback
+
 K.set_image_dim_ordering('tf')
 
 """
@@ -94,6 +96,8 @@ val_label_set_numpy = sess.run(val_label_set)
 print train_set_numpy.shape
 print train_label_set_numpy.shape
 
+validation_callback = Val_Callback(val_data=(val_set_numpy,val_label_set_numpy),model=model)
+
 model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
-model.fit(train_set_numpy, train_label_set_numpy, validation_data = (val_set_numpy,val_label_set_numpy), batch_size=10, nb_epoch=epochs, verbose=1)
+model.fit(train_set_numpy, train_label_set_numpy, callbacks=[validation_callback] , validation_data = (val_set_numpy,val_label_set_numpy), batch_size=10, nb_epoch=epochs, verbose=1)
 print(model.summary())
