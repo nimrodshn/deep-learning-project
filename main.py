@@ -1,4 +1,4 @@
-""" 
+"""
 Main script
 """
 from __future__ import absolute_import
@@ -55,24 +55,23 @@ class Net(object):
         """
         :param inputs: inputs from queue
         :param train_phase: Bool, true for training only
-        :param name: prefix for summery writer names 
+        :param name: prefix for summery writer names
         """
         self.x_input = inputs[0]
         self.y_input = inputs[1]
         self.train_phase = tf.constant(train_phase, dtype=tf.bool)
         self.base_name = name
-        
+
         # Get model
         self.network = CellSegmentation(input=self.x_input, labels=self.y_input, dims_in=np.array(DIMS_IN), dims_out=np.array(DIMS_OUT),
                                    regularization_weight=FLAGS.regularization_weight, name=self.base_name)
 
         # Connect nodes and create graph
         with tf.name_scope('model'):
-            #self.model, self.reg = self.network.model(self.train_phase)
-            self.model  = self.network.model(self.train_phase)
+            self.model, self.reg = self.network.model(self.train_phase)
 
         with tf.name_scope('loss'):
-            self.loss = self.network.loss(predict=self.model) # reg=self.reg
+            self.loss = self.network.loss(predict=self.model, reg=self.reg)
 
         with tf.name_scope('train'):
             # Train and update weights using the solver
@@ -119,7 +118,7 @@ def train_model(mode, checkpoint=None):
     Train the model
     If checkpoint exsits, resume from that point
     :param mode: "train", "resume"
-    """    
+    """
     # Create DataSets handel
     with tf.name_scope('DataSets') as scope:
         data_sets = DataSets(filenames=file_names, base_folder=FLAGS.data_dir, image_size=DIMS_IN)
@@ -163,7 +162,7 @@ def train_model(mode, checkpoint=None):
 
     # main loop
     for i in range(FLAGS.max_steps):
-        
+
         if (i % FLAGS.print_test == 0):
             # Display evaluation, write it into a log file and save checkpoint
             run_evaluation(sess, step=i, summary_op=merged, eval_op=net_val.evaluation, writer=writer)
@@ -208,7 +207,7 @@ def evaluate_checkpoint(checkpoint=None, output_file=None):
     while predict_counter < TEST_AMOUNT:
 
         predict, result = sess.run([net_predict, net_evaluation])
-        
+
         # Save into list for averaging
         # 2.0 is a singular value 2 * (0 + EPS) / (0 + 0 + EPS) = 2
         res = np.array(result)
@@ -241,7 +240,7 @@ if __name__ == '__main__':
     In general, this code is resposible for parsing your inputs using shell command.
     :params mode: 'train' - train your model from scratch
                   'resume' - resume training from spesific checkpoint
-                  'evaluate' - feed forward data into your model and evaluate performance, if 'output_file' is given, 
+                  'evaluate' - feed forward data into your model and evaluate performance, if 'output_file' is given,
                    the network outputs will be dumped as binary files.
     """
     parser = argparse.ArgumentParser(description='Main script for train Cell segmentation')
