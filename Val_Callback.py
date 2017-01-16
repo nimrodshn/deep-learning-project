@@ -7,4 +7,4 @@ class Val_Callback(keras.callbacks.Callback):
     def on_batch_end(self, batch, logs={}):
         x, y = self.val_data
         loss, acc = self.model.evaluate(x, y, verbose=0)
-        print('\nTesting loss: {}, acc: {}\n'.format(loss, acc))
+        print('\nValidation loss: {}, acc: {}\n'.format(loss, acc))

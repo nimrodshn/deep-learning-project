@@ -11,8 +11,12 @@ from keras.constraints import maxnorm
 from keras.optimizers import SGD
 from keras.layers.convolutional import Convolution2D, Deconvolution2D
 from keras.layers.convolutional import MaxPooling2D, UpSampling2D
+from keras.layers.normalization import BatchNormalization
+from keras.layers.core import Activation
+from keras.regularizers import l2
 from keras.utils import np_utils
 from keras import backend as K
+from DiceMetric import DiceMetric
 from Val_Callback import Val_Callback
 
 K.set_image_dim_ordering('tf')
@@ -54,20 +58,34 @@ data_set_test = data_sets.data['test']
 
 model = Sequential()
 # Input Image 64x64
-model.add(Convolution2D(4, 3, 3 ,input_shape=(64, 64,1), border_mode='same', activation='relu', W_constraint=maxnorm(3)))
-model.add(Convolution2D(4, 3, 3, activation='relu', border_mode='same', W_constraint=maxnorm(3)))
+model.add(Convolution2D(4, 3, 3 ,input_shape=(64, 64,1), border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Convolution2D(4, 3, 3, border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # Input Image 32x32
-model.add(Convolution2D(8, 3, 3 ,border_mode='same', activation='relu', W_constraint=maxnorm(3)))
-model.add(Convolution2D(8, 3, 3, activation='relu', border_mode='same', W_constraint=maxnorm(3)))
+model.add(Convolution2D(8, 3, 3 ,border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Convolution2D(8, 3, 3, border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # Input Image 16x16
-model.add(Convolution2D(16, 3, 3 ,border_mode='same', activation='relu', W_constraint=maxnorm(3)))
-model.add(Convolution2D(16, 3, 3, activation='relu', border_mode='same', W_constraint=maxnorm(3)))
+model.add(Convolution2D(16, 3, 3 ,border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
+model.add(Convolution2D(16, 3, 3, border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
 model.add(UpSampling2D(size=(8,8)))
-model.add(Convolution2D(1, 16, 16, activation='relu', border_mode='same', W_constraint=maxnorm(3)))
+model.add(Convolution2D(1, 16, 16, border_mode='same', W_constraint=maxnorm(3)))
+model.add(BatchNormalization())
+model.add(Activation('relu'))
 #model.add(Deconvolution2D(1, 3, 3, output_shape=(1,64,64,1), activation='softplus', border_mode='same', input_shape=(1,1,128)))
 print(model.summary())
 
@@ -97,7 +115,8 @@ print train_set_numpy.shape
 print train_label_set_numpy.shape
 
 validation_callback = Val_Callback(val_data=(val_set_numpy,val_label_set_numpy),model=model)
+metric = DiceMetric()
 
-model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', optimizer=sgd, metrics=[metric.dice]) #metrics=['accuracy'])
 model.fit(train_set_numpy, train_label_set_numpy, callbacks=[validation_callback] , validation_data = (val_set_numpy,val_label_set_numpy), batch_size=10, nb_epoch=epochs, verbose=1)
 print(model.summary())
