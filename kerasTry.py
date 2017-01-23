@@ -9,6 +9,7 @@ from data.DataHandeling import DataSets
 from keras.models import Sequential
 from keras.constraints import maxnorm
 from keras.optimizers import SGD, Adam
+
 from keras.layers.convolutional import Convolution2D, Deconvolution2D
 from keras.layers.convolutional import MaxPooling2D, UpSampling2D
 from keras.layers.normalization import BatchNormalization
@@ -19,6 +20,7 @@ from keras import backend as K
 from Val_Callback import Val_Callback
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping
 from DiceMetric import dice_coeff, dice_coeff_loss
+
 
 K.set_image_dim_ordering('tf')
 
@@ -59,6 +61,7 @@ data_set_test = data_sets.data['test']
 
 model = Sequential()
 # Input Image 64x64
+
 model.add(Convolution2D(4, 3, 3 , init='he_normal', input_shape=(64, 64,1), border_mode='same', W_regularizer=l2(5e-4)))
 model.add(BatchNormalization(mode=0, axis=1))
 model.add(Activation('relu'))
@@ -110,8 +113,6 @@ model.add(Convolution2D(1, 3, 3, init='he_normal', border_mode='same'))
 model.add(BatchNormalization(mode=0, axis=1))
 model.add(Activation('sigmoid'))
 
-
-
 #model.add(Deconvolution2D(1, 3, 3, output_shape=(1,64,64,1), activation='softplus', border_mode='same', input_shape=(1,1,128)))
 print(model.summary())
 
@@ -119,10 +120,12 @@ print(model.summary())
 
 epochs = 25
 lrate = 0.01
+
 batch_size_train = 32;
 
 adam = Adam(lr=lrate, beta_1=0.9, beta_2=0.999, epsilon=1e-08, decay=0.0)
 # sgd = SGD(lr=lrate, momentum=0.9, decay=decay, nesterov=False)
+
 train_set, train_label_set = data_set_train.get_batch(batch_size=4815) # get all training data set hahahahaahs
 val_set, val_label_set = data_set_val.get_batch(batch_size=467)
 # Start tensorflow session

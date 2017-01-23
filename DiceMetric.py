@@ -17,4 +17,3 @@ def np_dice_coeff(y_true, y_pred, smooth = 1):
 	#np.savetxt('Val_pred.txt', y_pred_f) #Debug
 	intersection = np.sum(y_true_f * y_pred_f)
 	return ( (2. * intersection + smooth) / (np.sum(y_true_f) + np.sum(y_pred_f) + smooth))
-
