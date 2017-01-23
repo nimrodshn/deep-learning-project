@@ -1,7 +1,6 @@
 import keras
 import DiceMetric as DM
 
-
 class Val_Callback(keras.callbacks.Callback):
     def __init__(self, val_data, model):
         self.val_data = val_data
