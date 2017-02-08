@@ -3,7 +3,7 @@ import os
 import datetime
 import time
 import argparse
-from kerasTry import runNet
+from kerasNN import runNet
 import tensorflow as tf
 import numpy as np
 from data.DataHandeling import DataSets
@@ -35,9 +35,4 @@ TEST_AMOUNT = 478
 # File for stdout
 logfile = open(os.path.join(FLAGS.train_dir, 'results_%s.log' % datetime.datetime.now()), 'w')
 
-data_sets = DataSets(filenames=file_names, base_folder=FLAGS.data_dir, image_size=DIMS_IN)
-data_set_train = data_sets.data['train']
-data_set_val = data_sets.data['val']
-data_set_test = data_sets.data['test']
-
-runNet(data_set_train,data_set_val)
+runNet()
