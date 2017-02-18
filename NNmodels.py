@@ -8,6 +8,8 @@ from keras.regularizers import l2
 
 
 
+
+
 def modelEncoderDecoder(w_regularize):
 	# Input Image 64x64
 	main_input = Input(shape=(64, 64,1))
@@ -45,7 +47,6 @@ def modelEncoderDecoder(w_regularize):
 	
 
 	model = Model(input=[main_input], output=[x])
-	print(model.summary())
 	return model
 
 def modelFCN(w_regularize):
@@ -65,7 +66,6 @@ def modelFCN(w_regularize):
 	
 
 	model = Model(input=[main_input], output=[x])
-	print(model.summary())
 	return model
 
 def modelResNetFCN(w_regularize):
@@ -90,7 +90,6 @@ def modelResNetFCN(w_regularize):
 	final_ouput = Activation('sigmoid')(x)
 	
 	model = Model(input=[main_input], output=[final_ouput])
-	print(model.summary())
 	return model
 
 
@@ -132,5 +131,6 @@ def modelEncoderDecoderResNet(w_regularize):
 	
 
 	model = Model(input=[main_input], output=[x])
-	print(model.summary())
 	return model
+
+

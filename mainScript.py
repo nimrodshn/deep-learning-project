@@ -3,7 +3,7 @@ import os
 import datetime
 import time
 import argparse
-from kerasNN import runNet
+from kerasNN import runNet, evalModelOnValAndTest
 import tensorflow as tf
 import numpy as np
 from data.DataHandeling import DataSets
@@ -35,4 +35,5 @@ TEST_AMOUNT = 478
 # File for stdout
 logfile = open(os.path.join(FLAGS.train_dir, 'results_%s.log' % datetime.datetime.now()), 'w')
 
-runNet()
+runNet('ResNetFCN')
+#evalModelOnValAndTest('ResNetFCN', 'ResNetFCN2017-02-18_01-07-29')
