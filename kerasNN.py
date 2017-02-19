@@ -22,6 +22,8 @@ def Net(net_type, w_regularize=5e-4):
 		model = NetTypes.modelFCN(w_regularize)
 	if net_type == 'ResNetFCN':
 		model = NetTypes.modelResNetFCN(w_regularize)
+	if net_type == 'DeeperResNetFCN':
+		model = NetTypes.modelDeeperResNetFCN(w_regularize)
 	if net_type == 'EncoderDecoder':
 		model = NetTypes.modelEncoderDecoder(w_regularize)
 	if net_type == 'EncoderDecoderResNet':

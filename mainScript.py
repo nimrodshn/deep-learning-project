@@ -35,5 +35,9 @@ TEST_AMOUNT = 478
 # File for stdout
 logfile = open(os.path.join(FLAGS.train_dir, 'results_%s.log' % datetime.datetime.now()), 'w')
 
-runNet('ResNetFCN')
+for k in range(0, 3):
+	runNet('DeeperResNetFCN')
+	runNet('ResNetFCN')
+	runNet('EncoderDecoderResNet')
+	runNet('FCN')
 #evalModelOnValAndTest('ResNetFCN', 'ResNetFCN2017-02-18_01-07-29')

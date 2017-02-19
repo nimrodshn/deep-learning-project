@@ -42,7 +42,7 @@ def modelEncoderDecoder(w_regularize):
 	# Inputs Image 32x32
 	x = UpSampling2D(size=(2,2))(x)
 	x = AtrousConvolution2D(1, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
-	x = BatchNormalization(mode=0, axis=1)(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)
 	x = Activation('sigmoid')(x)
 	
 
@@ -61,7 +61,7 @@ def modelFCN(w_regularize):
 	x = Activation('relu')(x)
 	
 	x = Convolution2D(1, 12, 12, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
-	x = BatchNormalization(mode=0, axis=1)(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)
 	x = Activation('sigmoid')(x)
 	
 
@@ -86,7 +86,7 @@ def modelResNetFCN(w_regularize):
 	x = Activation('relu')(merged_output)
 	
 	x = Convolution2D(1, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
-	x = BatchNormalization(mode=0, axis=1)(x)	
+	#x = BatchNormalization(mode=0, axis=1)(x)	
 	final_ouput = Activation('sigmoid')(x)
 	
 	model = Model(input=[main_input], output=[final_ouput])
@@ -126,11 +126,44 @@ def modelEncoderDecoderResNet(w_regularize):
 	# Inputs Image 32x32
 	x = UpSampling2D(size=(2,2))(x)
 	x = AtrousConvolution2D(1, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
-	x = BatchNormalization(mode=0, axis=1)(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)
 	x = Activation('sigmoid')(x)
 	
 
 	model = Model(input=[main_input], output=[x])
 	return model
 
+
+def modelDeeperResNetFCN(w_regularize):
+	# Input Image 64x64
+	main_input = Input(shape=(64, 64,1))
+
+	x = Convolution2D(8, 3, 3, init='he_normal', input_shape=(64, 64,1), border_mode='same', W_regularizer=l2(w_regularize))(main_input)
+	x = BatchNormalization(mode=0, axis=1)(x)
+	pre_merge = Activation('relu')(x)
+
+	x = Convolution2D(8, 3, 3, init='he_normal', input_shape=(64, 64,1), border_mode='same', W_regularizer=l2(w_regularize))(pre_merge)
+	x = BatchNormalization(mode=0, axis=1)(x)
+	x = Activation('relu')(x)
+
+	x = Convolution2D(8, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
+	x = BatchNormalization(mode=0, axis=1)(x)
+	merged_output = merge([pre_merge, x], mode='sum')
+	pre_merge2 = Activation('relu')(merged_output)
+
+	x = Convolution2D(8, 3, 3, init='he_normal', input_shape=(64, 64,1), border_mode='same', W_regularizer=l2(w_regularize))(pre_merge2)
+	x = BatchNormalization(mode=0, axis=1)(x)
+	x = Activation('relu')(x)
+
+	x = Convolution2D(8, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
+	x = BatchNormalization(mode=0, axis=1)(x)
+	merged_output2 = merge([pre_merge2, x], mode='sum')
+	x = Activation('relu')(merged_output2)
+	
+	x = Convolution2D(1, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)	
+	final_ouput = Activation('sigmoid')(x)
+	
+	model = Model(input=[main_input], output=[final_ouput])
+	return model
 
