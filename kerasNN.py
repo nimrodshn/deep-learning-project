@@ -89,7 +89,7 @@ def trainNet(model,epochs, lrate, batch_size_train, train_set_numpy,train_label_
     model.fit(train_set_numpy, train_label_set_numpy, callbacks=callback_list , validation_data=(val_set_numpy,val_label_set_numpy), batch_size=batch_size_train, nb_epoch=epochs, verbose=1)
     if activations_flag:
         print("Ploting...")
-        _ = plot_all_feature_maps(model, val_set_numpy[:12] ,n=8)
+        _ = plot_all_feature_maps(model, val_set_numpy[:12] ,n=10)
         plt.show()
 
 def getDataSet():
