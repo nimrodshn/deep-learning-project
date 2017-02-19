@@ -8,6 +8,18 @@ import tensorflow as tf
 import numpy as np
 from data.DataHandeling import DataSets
 from keras import backend as K
+import argparse
+
+# Command Line Args Parser
+
+parser = argparse.ArgumentParser(description='Arguments for running the segmentation model for Final Project')
+parser.add_argument('--plot-activations' ,type=bool , help='flag for plotting activation functions')
+parser.add_argument('--plot-weights' ,type=bool , help='flag for plotting weights')
+parser.add_argument('--net-type', type=str, help='type of net to use for model. options to select from: "FCN", "ResNetFCN", "EncoderDecoder", "modelEncoderDecoderResNet"')
+activations_flag = parser.parse_args().plot_activations
+weights_flag = parser.parse_args().plot_weights
+net_type = parser.parse_args().net_type
+
 
 K.set_image_dim_ordering('tf')
 
@@ -35,9 +47,6 @@ TEST_AMOUNT = 478
 # File for stdout
 logfile = open(os.path.join(FLAGS.train_dir, 'results_%s.log' % datetime.datetime.now()), 'w')
 
-for k in range(0, 3):
-	runNet('DeeperResNetFCN')
-	runNet('ResNetFCN')
-	runNet('EncoderDecoderResNet')
-	runNet('FCN')
+
+runNet(net_type, activations_flag, weights_flag)
 #evalModelOnValAndTest('ResNetFCN', 'ResNetFCN2017-02-18_01-07-29')
