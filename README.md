@@ -4,10 +4,10 @@ In this project we had implemented a number of Architectures for Semantic Segmen
 
 ### Running the model
 ```
-python mainScript.py --net-type='FCN' --plot-activations=true --plot-weights=false
+python mainScript.py --mode='train' --net-type='FCN' --plot-activations=true --plot-weights=false
 ```
 
-the following command will run the Fully Convolutional architecture with plots of the activation functions.
+the following command will run train a  fully convolutional architecture with plots of the activation functions.
 
 The net types are the following:
 - FCN
@@ -16,7 +16,3 @@ The net types are the following:
 - DeeperResNetFCN
 - EncoderDecoderResNet 
 
-### Some Nice Plots
-![plot0](plots/figure_12.png)
-![plot1](plots/figure_15.png)
-![plot2](plots/figure_17.png)

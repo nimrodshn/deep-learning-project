@@ -13,14 +13,14 @@ import argparse
 # Command Line Args Parser
 
 parser = argparse.ArgumentParser(description='Arguments for running the segmentation model for Final Project')
+parser.add_argument('--mode' ,type=str , help='flag for test / train modes')
 parser.add_argument('--plot-activations' ,type=bool , help='flag for plotting activation functions')
 parser.add_argument('--plot-weights' ,type=bool , help='flag for plotting weights')
 parser.add_argument('--net-type', type=str, help='type of net to use for model. options to select from: "FCN", "ResNetFCN", "EncoderDecoder", "modelEncoderDecoderResNet"')
+mode = parser.parse_args().mode
 activations_flag = parser.parse_args().plot_activations
 weights_flag = parser.parse_args().plot_weights
 net_type = parser.parse_args().net_type
-
-
 K.set_image_dim_ordering('tf')
 
 """
@@ -47,6 +47,7 @@ TEST_AMOUNT = 478
 # File for stdout
 logfile = open(os.path.join(FLAGS.train_dir, 'results_%s.log' % datetime.datetime.now()), 'w')
 
-
-runNet(net_type, activations_flag, weights_flag)
-#evalModelOnValAndTest('ResNetFCN', 'ResNetFCN2017-02-18_01-07-29')
+if mode == 'train':
+    runNet(net_type, activations_flag, weights_flag)
+else:
+    evalModelOnValAndTest('ResNetFCN', 'ResNetFCN2017-02-18_01-07-29')

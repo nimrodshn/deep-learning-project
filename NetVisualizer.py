@@ -1,9 +1,55 @@
 import keras.backend as K
 import matplotlib
 import matplotlib.pyplot as plt
+from scipy.misc import imsave
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy.ma as ma
 import numpy as np
+
+def plot_convolutions(model):
+    layer_dict = dict([(layer.name, layer) for layer in model.layers])
+    
+    filter_index = 0
+    img_height = 64
+    img_width = 64
+    
+    
+    first_layer = model.layers[-1]
+    input_image = first_layer.input
+    
+    layer_output = layer_dict[first_layer.name].output
+    loss = K.mean(layer_output[:, filter_index, :, :])
+    
+    grads = K.gradients(loss, input_image)[0]
+    grads /= (K.sqrt(K.mean(K.square(grads))) + 1e-5)
+    
+    iterate = K.function([input_image], [loss, grads])
+    
+    input_img_data = np.random.random((1, 3, img_width, img_height)) * 20 + 128.
+
+    for step in range(20):
+        loss_value, grads_value = iterate([input_img_data])
+        input_img_data += grads_value * step
+    
+    img = input_img_data [0]
+    img = deprocess_image(img)
+    imsave('%s_filter_%d.png' % ("some_layer" , filter_index) , img)	
+
+def deprocess_image(x):
+    # normalize tensor: center on 0., ensure std is 0.1
+    x -= x.mean()
+    x /= (x.std() + 1e-5)
+    x *= 0.1
+
+    # clip to [0, 1]
+    x += 0.5
+    x = np.clip(x, 0, 1)
+
+    # convert to RGB array
+    x *= 255
+    x = x.transpose((1, 2, 0))
+    x = np.clip(x, 0, 255).astype('uint8')
+    return x
 
 def plot_feature_map(model, layer_id, X, n=256, ax=None, **kwargs):
 
@@ -70,8 +116,8 @@ def plot_all_feature_maps(model, X, n=256, ax=None, **kwargs):
     figs = []
 
     for i, layer in enumerate(model.layers):
-       fig = plot_feature_map(model, i, X, n=n, ax=ax, **kwargs)
-       figs.append(fig)
+        fig = plot_feature_map(model, i, X, n=n, ax=ax, **kwargs)
+        figs.append(fig)
     return figs
 
 def make_mosaic(im, nrows, ncols, border=1):
@@ -95,4 +141,25 @@ def make_mosaic(im, nrows, ncols, border=1):
 
         mosaic[row * paddedh:row * paddedh + imshape[0],
                 col * paddedw:col * paddedw + imshape[1]] = im[i]
-    return mosaic
+        return mosaic
+
+
+def visualize_model_history(history):
+    print(history.history)
+    #summarize history for accuracy
+    plt.plot(history.history['dic_coeff'])
+    plt.plot(history.history['val_dice_coeff'])
+    plt.title('model accuracy (measured by dice coefficiant)')
+    plt.ylabel('accuracy')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
+    # summarize history for loss
+    plt.plot(history.history['loss'])
+    plt.plot(history.history['val_loss'])
+	
+    plt.title('model loss')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.legend(['train', 'test'], loc='upper left')
+    plt.show()
