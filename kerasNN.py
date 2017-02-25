@@ -14,7 +14,8 @@ from keras.callbacks import ReduceLROnPlateau, EarlyStopping, LearningRateSchedu
 from DiceMetric import dice_coeff, dice_coeff_loss
 from binary_cross import binary_cross_entropy
 from MyDataManipulator import plot_pairwise_train, plot_pairwise_val, read_train_data, read_val_data, read_test_data, plot_nn_result_vs_gt
-from NetVisualizer import plot_all_feature_maps, plot_convolutions, visualize_model_history
+from NetVisualizer import plot_convolutions, visualize_model_history, plot_filters
+from keras.utils.visualize_util import plot
 
 
 def Net(net_type, w_regularize=5e-4):
@@ -55,9 +56,10 @@ def trainNet(model,epochs, lrate, batch_size_train, train_set_numpy,train_label_
     model.fit(train_set_numpy, train_label_set_numpy, callbacks=callback_list , validation_data=(val_set_numpy,val_label_set_numpy), batch_size=batch_size_train, nb_epoch=epochs, verbose=1)
     if activations_flag:
         print("Ploting...")
-        plot(model, to_file= net_type + '.png')
-        visualize_model_history(history)
-        #_ = plot_all_feature_maps(model, val_set_numpy[:3] ,n=3)
+        #plot(model, to_file= net_type + '.png')
+        #visualize_model_history(history)
+        plot_convolutions(model)
+        #plot_filters(model.layers[-1], 2 ,4) 
         plt.show()
 
 def getDataSet():
