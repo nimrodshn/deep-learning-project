@@ -13,9 +13,9 @@ from Val_Callback import Val_Callback
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, LearningRateScheduler, CSVLogger, ModelCheckpoint, TensorBoard, History
 from DiceMetric import dice_coeff, dice_coeff_loss
 from binary_cross import binary_cross_entropy
-from MyDataManipulator import plot_pairwise_train, plot_pairwise_val, read_train_data, read_val_data, read_test_data
+from MyDataManipulator import plot_pairwise_train, plot_pairwise_val, read_train_data, read_val_data, read_test_data, plot_nn_result_vs_gt
 from NetVisualizer import plot_all_feature_maps, plot_convolutions, visualize_model_history
-from keras.utils.visualize_util import plot
+
 
 def Net(net_type, w_regularize=5e-4):
     print net_type
@@ -67,7 +67,7 @@ def getDataSet():
     return train_set_numpy, train_label_set_numpy, val_set_numpy, val_label_set_numpy
 
 def runNet(net_type, activations_flag, weights_flag):
-    epochs = 1 # / 10 / 15 
+    epochs = 15
     learning_rate = 0.01
     batch_size_train = 20
 
@@ -85,6 +85,10 @@ def evalModelOnValAndTest(net_type, model_chekpoint_folder_path):
     test_set_numpy, test_label_set_numpy = read_test_data()
     dice_score_validation = model.evaluate(x = val_set_numpy , y = val_label_set_numpy, verbose = 0)
     dice_score_test = model.evaluate(x = test_set_numpy, y = test_label_set_numpy, verbose = 0)
+
+    plotResultForSingleImage(val_set_numpy[[4], : ,: ,:], val_label_set_numpy[[4], :, :, :], model)
+    plotResultForSingleImage(val_set_numpy[[50], : ,: ,:], val_label_set_numpy[[50], :, :, :], model)
+
     print('\nValidation Dice Score: {} Testing Dice Score: {}\n'.format(dice_score_validation[1], dice_score_test[1]))
     return dice_score_validation, dice_score_test
 
@@ -93,3 +97,7 @@ def createModelTimestampFolder(net_type_string):
     net_dir = os.path.join(os.getcwd(), net_type_string + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
     os.makedirs(net_dir)
     return net_dir
+
+def plotResultForSingleImage(img, label, model):
+    nn_result = model.predict(img)
+    plot_nn_result_vs_gt(img[0, :, :, 0] ,nn_result[0, :, :, 0], label[0, :, :, 0])

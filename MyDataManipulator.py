@@ -72,7 +72,6 @@ def plot_pairwise_train(train_set_numpy, train_label_set_numpy):
         plt.show()
 
 def plot_pairwise_val(val_set_numpy, val_label_set):
-
     for index in range(val_set_numpy.shape[0]):
         fig=plt.figure()
         img=val_set_numpy[index,:,:,0]
@@ -82,3 +81,17 @@ def plot_pairwise_val(val_set_numpy, val_label_set):
         a=fig.add_subplot(1,2,2)
         plt.imshow(img,cmap=plt.get_cmap('gray'),vmin=0,vmax=1)
         plt.show()
+
+def plot_nn_result_vs_gt(img ,nn_result, gt_map): 
+    fig=plt.figure()
+    a=fig.add_subplot(1,3,1)
+    plt.imshow(img, interpolation='none')
+    a.set_title('Input image', fontsize=12) 
+    a=fig.add_subplot(1,3,2)
+    plt.imshow(nn_result, cmap=plt.get_cmap('gray'),vmin=0,vmax=1)
+    a.set_title('Neural Network Result', fontsize=12)
+    a=fig.add_subplot(1,3,3)
+    plt.imshow(gt_map, cmap=plt.get_cmap('gray'),vmin=0,vmax=1)
+    a.set_title('Correct Segmentation', fontsize=12)
+    plt.show()
+    

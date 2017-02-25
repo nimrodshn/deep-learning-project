@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(description='Arguments for running the segmenta
 parser.add_argument('--mode' ,type=str , help='flag for test / train modes')
 parser.add_argument('--plot-activations' ,type=bool , help='flag for plotting activation functions')
 parser.add_argument('--plot-weights' ,type=bool , help='flag for plotting weights')
-parser.add_argument('--net-type', type=str, help='type of net to use for model. options to select from: "FCN", "ResNetFCN", "EncoderDecoder", "modelEncoderDecoderResNet"')
+parser.add_argument('--net-type', type=str, help='type of net to use for model. options to select from: "FCN", "ResNetFCN", "EncoderDecoder", "EncoderDecoderResNet", "DeeperResNetFCN"')
 mode = parser.parse_args().mode
 activations_flag = parser.parse_args().plot_activations
 weights_flag = parser.parse_args().plot_weights
@@ -48,6 +48,11 @@ TEST_AMOUNT = 478
 logfile = open(os.path.join(FLAGS.train_dir, 'results_%s.log' % datetime.datetime.now()), 'w')
 
 if mode == 'train':
-    runNet(net_type, activations_flag, weights_flag)
+	runNet(net_type, activations_flag, weights_flag)
 else:
-    evalModelOnValAndTest('ResNetFCN', 'ResNetFCN2017-02-18_01-07-29')
+	if (net_type == 'ResNetFCN'):
+		best_model_folder = 'ResNetFCN2017-02-20_04-20-05'
+	if (net_type == 'DeeperResNetFCN'):
+		best_model_folder = 'DeeperResNetFCN2017-02-19_04-00-57'
+	evalModelOnValAndTest(net_type, best_model_folder)
+	#evalModelOnValAndTest('DeeperResNetFCN', 'DeeperResNetFCN2017-02-19_04-00-57')
