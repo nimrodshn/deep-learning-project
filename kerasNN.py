@@ -46,7 +46,7 @@ def trainNet(model,epochs, lrate, batch_size_train, train_set_numpy,train_label_
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=1, verbose=0, mode='auto')
     csv_logger = CSVLogger(log_file_path, separator=',', append=False)
     checkpoint_writer = ModelCheckpoint(best_chekpoint_file_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-    tensor_board = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
+    tensor_board = TensorBoard(log_dir='./logs', histogram_freq=1, write_graph=True, write_images=False)
     history = History()
     callback_list = [reduce_lr, csv_logger, checkpoint_writer, tensor_board, history]
 
