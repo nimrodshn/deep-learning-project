@@ -13,8 +13,8 @@ def plot_convolutions(model):
     img_height = 64
     img_width = 64
     
-    
-    first_layer = model.layers[-1]
+    num_of_layers = len(model.layers)
+    first_layer = model.layers[num_of_layers-1]
     input_image = first_layer.input
     
     layer_output = layer_dict[first_layer.name].output
@@ -25,15 +25,18 @@ def plot_convolutions(model):
     
     iterate = K.function([input_image], [loss, grads])
     
-    input_img_data = np.random.random((1, 3, img_width, img_height)) * 20 + 128.
+    input_img_data = np.random.random((1, img_width, img_height, 1)) * 20 + 128.
 
     for step in range(20):
         loss_value, grads_value = iterate([input_img_data])
         input_img_data += grads_value * step
     
-    img = input_img_data [0]
-    img = deprocess_image(img)
-    imsave('%s_filter_%d.png' % ("some_layer" , filter_index) , img)	
+    img = input_img_data[0]
+    print img.shape
+    img = deprocess_image(img).squeeze()
+    
+    plt.imshow(img)
+    imsave('%s_filter_%d.png' % (first_layer.name , filter_index) , img)	
 
 def deprocess_image(x):
     # normalize tensor: center on 0., ensure std is 0.1
@@ -147,7 +150,7 @@ def make_mosaic(im, nrows, ncols, border=1):
 def visualize_model_history(history):
     print(history.history)
     #summarize history for accuracy
-    plt.plot(history.history['dic_coeff'])
+    plt.plot(history.history['dice_coeff'])
     plt.plot(history.history['val_dice_coeff'])
     plt.title('model accuracy (measured by dice coefficiant)')
     plt.ylabel('accuracy')
@@ -163,3 +166,14 @@ def visualize_model_history(history):
     plt.xlabel('epoch')
     plt.legend(['train', 'test'], loc='upper left')
     plt.show()
+
+def plot_filters(layer, x ,y):
+    filters = layer.get_value()
+    fig = plt.figure()
+    for idx, layer in enumerate(filters):
+        ax = fig.add_subplot(x,y, i+1)
+        ax.matshow(filters[idx][0], cmap=matplotlib.cm.binary)
+        plt.xticks(np.array([]))
+        plt.yticks(np.array([]))
+    plt.tight_layout()
+    return plt
