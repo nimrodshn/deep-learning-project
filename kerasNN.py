@@ -13,9 +13,10 @@ from Val_Callback import Val_Callback
 from keras.callbacks import ReduceLROnPlateau, EarlyStopping, LearningRateScheduler, CSVLogger, ModelCheckpoint, TensorBoard, History
 from DiceMetric import dice_coeff, dice_coeff_loss
 from binary_cross import binary_cross_entropy
-from MyDataManipulator import plot_pairwise_train, plot_pairwise_val, read_train_data, read_val_data, read_test_data
-from NetVisualizer import plot_convolutions, visualize_model_history, plot_filters
-from keras.utils.visualize_util import plot
+from MyDataManipulator import plot_pairwise_train, plot_pairwise_val, read_train_data, read_val_data, read_test_data, plot_nn_result_vs_gt
+from NetVisualizer import plot_activations, visualize_model_history, plot_feature_map
+#from keras.utils.visualize_util import plot
+
 
 def Net(net_type, w_regularize=5e-4):
     print net_type
@@ -32,7 +33,7 @@ def Net(net_type, w_regularize=5e-4):
     return model
 
 
-def trainNet(model,epochs, lrate, batch_size_train, train_set_numpy,train_label_set_numpy,val_set_numpy,val_label_set_numpy, net_type, activations_flag, weights_flag):
+def trainNet(model,epochs, lrate, batch_size_train, train_set_numpy,train_label_set_numpy,val_set_numpy,val_label_set_numpy, net_type, activations_flag):
 
     #create a folder for training session.
     output_dir = createModelTimestampFolder(net_type)
@@ -46,20 +47,21 @@ def trainNet(model,epochs, lrate, batch_size_train, train_set_numpy,train_label_
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.1, patience=1, verbose=0, mode='auto')
     csv_logger = CSVLogger(log_file_path, separator=',', append=False)
     checkpoint_writer = ModelCheckpoint(best_chekpoint_file_path, monitor='val_loss', verbose=1, save_best_only=True, mode='min')
-    tensor_board = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=False)
+    tensor_board = TensorBoard(log_dir='./logs', histogram_freq=1, write_graph=True, write_images=False)
     history = History()
     callback_list = [reduce_lr, csv_logger, checkpoint_writer, tensor_board, history]
 
     print(model.summary())
     model.compile(loss=[dice_coeff_loss], optimizer=adam, metrics=[dice_coeff])
     model.fit(train_set_numpy, train_label_set_numpy, callbacks=callback_list , validation_data=(val_set_numpy,val_label_set_numpy), batch_size=batch_size_train, nb_epoch=epochs, verbose=1)
+    #plot(model, to_file= net_type + '.png')
     if activations_flag:
-        print("Ploting...")
-        #plot(model, to_file= net_type + '.png')
-        #visualize_model_history(history)
-        plot_convolutions(model)
-        #plot_filters(model.layers[-1], 2 ,4) 
-        plt.show()
+        img = val_set_numpy[[4], : ,: ,:] #arbitrary image from validation set.
+        layer_id = 2 #arbitrary layer number
+        plot_feature_map(model, layer_id, img, 1)
+
+    print("Ploting...")
+    visualize_model_history(history)
 
 def getDataSet():
     train_set_numpy, train_label_set_numpy = read_train_data()
@@ -67,16 +69,16 @@ def getDataSet():
 
     return train_set_numpy, train_label_set_numpy, val_set_numpy, val_label_set_numpy
 
-def runNet(net_type, activations_flag, weights_flag):
-    epochs = 1 # / 10 / 15 
+def runNet(net_type, activations_flag):
+    epochs = 1
     learning_rate = 0.01
     batch_size_train = 20
 
     train_set_numpy, train_label_set_numpy, val_set_numpy, val_label_set_numpy = getDataSet()
     model = Net(net_type)
-    trainNet(model, epochs, learning_rate, batch_size_train, train_set_numpy, train_label_set_numpy, val_set_numpy, val_label_set_numpy, net_type, activations_flag, weights_flag)
+    trainNet(model, epochs, learning_rate, batch_size_train, train_set_numpy, train_label_set_numpy, val_set_numpy, val_label_set_numpy, net_type, activations_flag)
 
-def evalModelOnValAndTest(net_type, model_chekpoint_folder_path):
+def evalModelOnValAndTest(net_type, model_chekpoint_folder_path, activations_flag):
     model = Net(net_type)
     model_chekpoint_file_path = os.path.join(model_chekpoint_folder_path, 'best_model.hdf5')
     model.load_weights(model_chekpoint_file_path)
@@ -86,6 +88,12 @@ def evalModelOnValAndTest(net_type, model_chekpoint_folder_path):
     test_set_numpy, test_label_set_numpy = read_test_data()
     dice_score_validation = model.evaluate(x = val_set_numpy , y = val_label_set_numpy, verbose = 0)
     dice_score_test = model.evaluate(x = test_set_numpy, y = test_label_set_numpy, verbose = 0)
+
+    plotResultForSingleImage(val_set_numpy[[4], : ,: ,:], val_label_set_numpy[[4], :, :, :], model)
+    plotResultForSingleImage(val_set_numpy[[50], : ,: ,:], val_label_set_numpy[[50], :, :, :], model)
+
+    
+
     print('\nValidation Dice Score: {} Testing Dice Score: {}\n'.format(dice_score_validation[1], dice_score_test[1]))
     return dice_score_validation, dice_score_test
 
@@ -94,3 +102,9 @@ def createModelTimestampFolder(net_type_string):
     net_dir = os.path.join(os.getcwd(), net_type_string + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S'))
     os.makedirs(net_dir)
     return net_dir
+
+def plotResultForSingleImage(img, label, model):
+    nn_result = model.predict(img)
+    layer_id = 2 #arbitrary layer number
+    plot_feature_map(model, layer_id, img, 1)
+    plot_nn_result_vs_gt(img[0, :, :, 0] ,nn_result[0, :, :, 0], label[0, :, :, 0])

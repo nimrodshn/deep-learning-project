@@ -69,15 +69,15 @@ def modelResNetFCN(w_regularize):
 	main_input = Input(shape=(64, 64,1))
 
 	x = Convolution2D(8, 3, 3, init='he_normal', input_shape=(64, 64,1), border_mode='same', W_regularizer=l2(w_regularize))(main_input)
-	x = BatchNormalization(mode=0, axis=1)(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)
 	pre_merge = Activation('relu')(x)
 
 	x = Convolution2D(8, 3, 3, init='he_normal', input_shape=(64, 64,1), border_mode='same', W_regularizer=l2(w_regularize))(pre_merge)
-	x = BatchNormalization(mode=0, axis=1)(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)
 	x = Activation('relu')(x)
 
 	x = Convolution2D(8, 3, 3, init='he_normal', border_mode='same', W_regularizer=l2(w_regularize))(x)
-	x = BatchNormalization(mode=0, axis=1)(x)
+	#x = BatchNormalization(mode=0, axis=1)(x)
 	merged_output = merge([pre_merge, x], mode='sum')
 	x = Activation('relu')(merged_output)
 
