@@ -6,18 +6,17 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import numpy.ma as ma
 import numpy as np
 
-def plot_convolutions(model):
+def plot_activations(model, layer_num):
     layer_dict = dict([(layer.name, layer) for layer in model.layers])
     
-    filter_index = 0
+    filter_index = 3 #always plotting result of first filter.
     img_height = 64
     img_width = 64
     
-    num_of_layers = len(model.layers)
-    first_layer = model.layers[num_of_layers-1]
-    input_image = first_layer.input
+    inspected_layer = model.layers[layer_num-1]
+    input_image = inspected_layer.input
     
-    layer_output = layer_dict[first_layer.name].output
+    layer_output = layer_dict[inspected_layer.name].output
     loss = K.mean(layer_output[:, filter_index, :, :])
     
     grads = K.gradients(loss, input_image)[0]
@@ -32,11 +31,12 @@ def plot_convolutions(model):
         input_img_data += grads_value * step
     
     img = input_img_data[0]
-    print img.shape
     img = deprocess_image(img).squeeze()
     
-    plt.imshow(img)
-    imsave('%s_filter_%d.png' % (first_layer.name , filter_index) , img)	
+    fig=plt.figure()
+    plt.imshow(img, cmap=plt.get_cmap('gray'), vmin=0, vmax=1)
+
+    #imsave('%s_filter_%d.png' % (inspected_layer.name , filter_index) , img)	
 
 def deprocess_image(x):
     # normalize tensor: center on 0., ensure std is 0.1
@@ -148,6 +148,7 @@ def make_mosaic(im, nrows, ncols, border=1):
 
 
 def visualize_model_history(history):
+    fig=plt.figure()
     print(history.history)
     #summarize history for accuracy
     plt.plot(history.history['dice_coeff'])
